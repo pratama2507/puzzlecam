@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Scrapbook Puzzle Cam By Fell😎</title>
+
+<!-- Google Fonts: display (handwritten) + body (rounded sans) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Stylesheet (terpisah dari HTML & JS) -->
+<style>
+/* =========================================================
+   SCRAPBOOK PUZZLE CAM — STYLESHEET
+   Tema: buku tempel (scrapbook) hangat & humble,
+   cocok untuk cewek/cowok usia 17–25 tahun.
+   Palet: krem kertas, sage, dusty pink, butter yellow, charcoal
+========================================================= */
+
+:root{
+  --paper:      #FFF7EC;
+  --paper-deep: #F3ECDD;
+  --ink:        #2E2A26;
+  --ink-soft:   #6B6259;
+  --sage:       #8FA88A;
+  --sage-soft:  #D9E4D3;
+  --pink:       #D98A9E;
+  --pink-soft:  #F6D9DF;
+  --butter:     #F4E3B2;
+  --sky:        #CBD9EE;
+  --line:       #E4D9C4;
+
+  --font-display: 'Caveat', cursive;
+  --font-body: 'Nunito', sans-serif;
+
+  --radius-lg: 22px;
+  --radius-md: 14px;
+  --radius-sm: 9px;
+
+  --shadow-card: 0 10px 24px -12px rgba(46,42,38,0.28);
+  --shadow-soft: 0 4px 10px -4px rgba(46,42,38,0.2);
+}
+
+*{ box-sizing: border-box; }
+
+html, body{
+  margin:0; padding:0;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+/* subtle paper grain via layered radial dots */
+.paper-texture{
+  position: fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(46,42,38,0.045) 1px, transparent 1.4px);
+  background-size: 14px 14px;
+}
+
+#app{ position: relative; z-index: 1; min-height: 100vh; }
+
+h1,h2{ font-family: var(--font-display); margin:0; }
+
+button{ font-family: var(--font-body); cursor:pointer; }
+input{ font-family: var(--font-body); }
+
+/* =========================================================
+   SCREEN SWITCHING
+========================================================= */
+.screen{
+  display:none;
+  min-height: 100vh;
+  padding: 32px 20px 60px;
+  align-items: center;
+  justify-content: center;
+}
+.screen.is-active{ display:flex; }
+
+/* =========================================================
+   REUSABLE PIECES
+========================================================= */
+.section-label{
+  font-size: 1.6rem;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.hint-text{
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin: 10px 0 0;
+}
+
+.btn-primary{
+  background: var(--pink);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 30px;
+  font-weight: 800;
+  font-size: 1rem;
+  box-shadow: var(--shadow-soft);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.btn-primary:hover{ transform: translateY(-2px); box-shadow: var(--shadow-card); }
+.btn-primary:active{ transform: translateY(0); }
+.btn-primary.is-hidden, .btn-secondary.is-hidden{ display:none !important; }
+
+.btn-secondary{
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 12px 24px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: background .15s ease, transform .15s ease;
+}
+.btn-secondary:hover{ background: var(--paper-deep); transform: translateY(-1px); }
+
+.tape{
+  position:absolute;
+  width: 90px; height: 28px;
+  background: repeating-linear-gradient(45deg, rgba(217,138,158,0.55), rgba(217,138,158,0.55) 6px, rgba(217,138,158,0.35) 6px, rgba(217,138,158,0.35) 12px);
+  opacity:0.85;
+  box-shadow: var(--shadow-soft);
+}
+.tape--top-left{ top:-12px; left: 30px; transform: rotate(-12deg); }
+.tape--top-right{ top:-12px; right: 30px; transform: rotate(10deg); }
+
+/* Polaroid-style card */
+.polaroid{
+  background:#fff;
+  border-radius: 6px;
+  padding: 18px 18px 26px;
+  box-shadow: var(--shadow-card);
+  transform: rotate(-1.2deg);
+}
+.polaroid--title{ text-align:center; margin-bottom: 26px; }
+.polaroid--small{ text-align:center; margin-bottom: 18px; max-width: 520px; }
+
+.brand-title{
+  font-size: 3rem;
+  line-height: 1.05;
+  color: var(--ink);
+}
+.brand-tagline{
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  margin: 8px 0 0;
+}
+
+/* =========================================================
+   HOME SCREEN
+========================================================= */
+.corkboard{
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  background: var(--paper-deep);
+  border: 2px dashed var(--line);
+  border-radius: var(--radius-lg);
+  padding: 34px 28px 30px;
+}
+
+.option-card{
+  background:#fff;
+  border-radius: var(--radius-md);
+  padding: 16px 18px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-soft);
+}
+
+.option-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+  gap: 10px;
+}
+
+.option-chip{
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px 8px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  transition: all .15s ease;
+}
+.chip-emoji{ font-size: 1.4rem; }
+.option-chip:hover{ border-color: var(--sage); }
+.option-chip.is-selected{
+  background: var(--sage-soft);
+  border-color: var(--sage);
+  color: var(--ink);
+}
+
+#btn-start{ display:block; width:100%; margin-top: 4px; }
+
+/* =========================================================
+   CAMERA SCREEN
+========================================================= */
+.camera-stage{ display:flex; flex-direction:column; align-items:center; gap:16px; width:100%; max-width: 640px; }
+
+.camera-frame{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: #111;
+  border-radius: var(--radius-lg);
+  overflow:hidden;
+  box-shadow: var(--shadow-card);
+  border: 6px solid #fff;
+}
+
+.camera-rig{
+  position: absolute; inset:0; width:100%; height:100%;
+}
+/* saat "diparkir" (dipakai di layar puzzle/review), rig tetap render
+   di UKURAN ASLI (640x480) tapi digeser jauh ke luar layar.
+   PENTING: jangan dikecilin ke ukuran ~0px atau display:none — banyak
+   browser (terutama Safari/mobile) akan menghentikan decode video kalau
+   elemennya dianggap "tidak terlihat", sehingga videonya freeze/blank
+   waktu dimunculkan lagi. Menggeser ke luar viewport dengan ukuran asli
+   jauh lebih aman untuk menjaga stream & pelacakan tangan tetap hidup. */
+.camera-rig--parked{
+  position: fixed;
+  top: 0;
+  left: -9999px;
+  width: 640px;
+  height: 480px;
+  opacity: 1;
+  pointer-events: none;
+}
+
+#webcam{
+  width:100%; height:100%; object-fit: cover;
+  transform: scaleX(-1); /* mirror */
+}
+#hand-overlay{
+  position:absolute; inset:0; width:100%; height:100%;
+  transform: scaleX(-1);
+  pointer-events:none;
+}
+
+.pinch-cursor{
+  position:absolute;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: rgba(217,138,158,0.55);
+  border: 3px solid #fff;
+  box-shadow: var(--shadow-soft);
+  transform: translate(-50%,-50%);
+  pointer-events:none;
+  z-index: 20;
+  transition: opacity .15s ease;
+}
+
+.camera-hud{
+  position:absolute; top:12px; left:12px; right:12px;
+  display:flex; justify-content:space-between; align-items:center;
+  pointer-events:none;
+}
+.badge-count, .badge-gesture{
+  background: rgba(46,42,38,0.72);
+  color:#fff;
+  font-weight:700;
+  font-size: 0.78rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.countdown-overlay{
+  position:absolute; inset:0;
+  display:flex; flex-direction: column; align-items:center; justify-content:center; gap: 6px;
+  color:#fff;
+  background: rgba(46,42,38,0.45);
+  z-index: 15;
+}
+.countdown-overlay.is-hidden{ display:none; }
+.countdown-label{
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.countdown-number{
+  font-family: var(--font-display);
+  font-size: 8rem;
+  line-height: 1;
+  animation: countdown-pop 0.7s ease;
+}
+@keyframes countdown-pop{
+  0%{ transform: scale(0.4); opacity: 0; }
+  50%{ transform: scale(1.15); opacity: 1; }
+  100%{ transform: scale(1); opacity: 1; }
+}
+
+.flash-overlay{
+  position:absolute; inset:0;
+  background:#fff;
+  opacity: 0;
+  pointer-events:none;
+  z-index: 16;
+}
+.flash-overlay.is-flashing{
+  animation: camera-flash 0.4s ease;
+}
+@keyframes camera-flash{
+  0%{ opacity: 0; }
+  15%{ opacity: 0.9; }
+  100%{ opacity: 0; }
+}
+
+.loading-overlay{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 14px;
+  background: rgba(46,42,38,0.55);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  z-index: 14;
+  text-align: center;
+  padding: 20px;
+}
+.loading-overlay.is-hidden{ display:none; }
+.loading-spinner{
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 4px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  animation: spin 0.9s linear infinite;
+}
+.loading-overlay.is-error .loading-spinner{ display:none; }
+@keyframes spin{ to{ transform: rotate(360deg); } }
+
+.camera-instructions{ text-align:center; max-width: 480px; }
+.camera-instructions p{ margin: 0 0 10px; font-size: 0.88rem; color: var(--ink-soft); }
+
+/* =========================================================
+   RULES SCREEN
+========================================================= */
+.rules-card{ max-width: 480px; text-align:left; }
+.rules-list{ margin: 14px 0 22px; padding-left: 22px; color: var(--ink-soft); font-size: 0.92rem; line-height: 1.8; }
+.rules-list strong{ color: var(--ink); }
+#btn-rules-ok{ display:block; width:100%; }
+
+/* =========================================================
+   REVIEW SCREEN
+========================================================= */
+.review-card{ max-width: 380px; text-align:center; }
+.review-photo{
+  width: 100%; max-width: 280px;
+  border-radius: 8px;
+  margin: 12px auto;
+  display:block;
+  box-shadow: var(--shadow-soft);
+}
+.review-actions{ display:flex; gap: 10px; justify-content:center; margin-top: 14px; flex-wrap: wrap; }
+
+/* =========================================================
+   PUZZLE SCREEN
+========================================================= */
+.puzzle-stage{ display:flex; flex-direction:column; align-items:center; width:100%; max-width: 460px; }
+
+.puzzle-board{
+  position: relative;
+  width: 340px; height: 340px;
+  background: var(--paper-deep);
+  border: 6px solid #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.puzzle-tile{
+  position:absolute;
+  /* width/height/background-size diatur lewat inline style oleh puzzle.js
+     supaya otomatis menyesuaikan ukuran grid (3x3 atau 4x4) */
+  border: 1px solid rgba(255,255,255,0.6);
+  transition: top .18s ease, left .18s ease, outline .1s ease;
+  cursor: grab;
+}
+.puzzle-tile.is-selected{ outline: 4px solid var(--pink); outline-offset: -4px; z-index:5; }
+.puzzle-tile.is-correct{ outline: 3px solid var(--sage); outline-offset: -3px; }
+
+.puzzle-controls{
+  margin-top: 16px;
+  display:flex; align-items:center; gap: 10px; flex-wrap: wrap;
+  justify-content:center;
+}
+
+/* =========================================================
+   PRINTING SCREEN
+========================================================= */
+.printer-stage{ text-align:center; }
+/* PERBAIKAN BUG: sebelumnya .printer punya height tetap (260px) dan
+   .printed-strip posisinya "absolute", jadi waktu foto sedang "keluar
+   dicetak" tingginya bisa lebih dari 260px dan malah numpuk/tumpang
+   tindih sama teks "Sabar ya..." di bawahnya. Sekarang .printed-strip
+   ikut alur normal (position: relative, bukan absolute) supaya
+   kontainernya otomatis menyesuaikan tinggi & mendorong teks di
+   bawahnya turun, bukan ketiban. */
+.printer{ position:relative; width: 220px; margin: 24px auto 0; }
+.printer-body{
+  width: 220px; height: 90px;
+  background: linear-gradient(180deg, var(--sage) 0%, #75906f 100%);
+  border-radius: 14px 14px 6px 6px;
+  box-shadow: var(--shadow-card);
+  position: relative; z-index:2;
+}
+.printer-slot{
+  position:absolute; bottom:-4px; left:50%; transform: translateX(-50%);
+  width: 160px; height: 10px; background:#2E2A26; border-radius: 4px;
+}
+.printed-strip{
+  position:relative; top: -4px; margin: 0 auto;
+  width: 130px;
+  background:#fff;
+  border-radius: 4px;
+  box-shadow: var(--shadow-soft);
+  overflow:hidden;
+  z-index:1;
+  animation: print-out 2.6s ease forwards;
+}
+.printed-strip img{ display:block; width:100%; }
+
+@keyframes print-out{
+  0%   { height: 0; opacity: 0; }
+  15%  { opacity: 1; }
+  100% { height: var(--strip-height, 420px); }
+}
+
+/* =========================================================
+   SCRAPBOOK EDITOR
+========================================================= */
+.editor-stage{
+  display:flex; gap: 26px; flex-wrap: wrap; justify-content:center;
+  width:100%; max-width: 900px;
+}
+
+.editor-canvas-wrap{
+  background: #fff;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+#scrapbook-canvas{ display:block; max-width: 340px; touch-action:none; }
+
+.editor-panel{
+  width: 280px;
+  background:#fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+}
+
+.panel-block{ margin-bottom: 20px; }
+.panel-label{ font-weight:800; font-size:0.82rem; color: var(--ink-soft); margin: 0 0 8px; text-transform: uppercase; letter-spacing:.03em; }
+
+.swatch-row{ display:flex; gap:8px; flex-wrap:wrap; }
+.swatch{
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 2px solid var(--line);
+}
+.swatch.is-selected{ outline: 2px solid var(--pink); outline-offset: 2px; }
+
+.sticker-tray{ display:grid; grid-template-columns: repeat(4,1fr); gap:8px; margin-bottom:8px; }
+.sticker-btn{
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 1.3rem;
+  padding: 8px 0;
+}
+.sticker-btn:hover{ background: var(--butter); }
+
+.sticker-delete-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.sticker-selected-label{
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.btn-delete-sticker{
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+.btn-delete-sticker:disabled{
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+}
+.btn-delete-sticker:not(:disabled):hover{
+  background: var(--pink-soft);
+  border-color: var(--pink);
+}
+
+#caption-input{
+  width:100%;
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+#caption-input:focus{ outline: none; border-color: var(--sage); }
+
+.editor-actions{ display:flex; flex-direction:column; gap:10px; margin-top: 4px; }
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media (max-width: 620px){
+  .brand-title{ font-size: 2.4rem; }
+  .puzzle-board{ width: 280px; height: 280px; }
+  .editor-panel{ width: 100%; max-width: 340px; }
+}
+
+
+</style>
+</head>
+<body>
+
+<!-- ====== DEKORASI LATAR (washi tape, doodle) ====== -->
+<div class="paper-texture" aria-hidden="true"></div>
+
+<main id="app">
+
+  <!-- ======================================================
+       CAMERA RIG (persisten, dipindah antar layar oleh app.js
+       supaya pelacakan tangan tetap jalan lintas layar)
+  ======================================================= -->
+  <div id="camera-rig" class="camera-rig camera-rig--parked">
+    <video id="webcam" autoplay playsinline muted></video>
+    <canvas id="hand-overlay"></canvas>
+  </div>
+  <canvas id="capture-canvas" class="is-hidden"></canvas>
+
+  <!-- ======================================================
+       SCREEN 1 — HOME: pilih layout & filter
+  ======================================================= -->
+  <section class="screen screen--home is-active" id="screen-home" data-screen="home">
+    <div class="corkboard">
+      <div class="polaroid polaroid--title">
+        <h1 class="brand-title">Scrapbook<br>Puzzle Cam</h1>
+        <p class="brand-tagline">Welcome to my Scrapbook Puzzle Cam By Fell 📸</p>
+      </div>
+
+      <div class="tape tape--top-left" aria-hidden="true"></div>
+      <div class="tape tape--top-right" aria-hidden="true"></div>
+
+      <div class="option-card">
+        <h2 class="section-label">01 — Ukuran Puzzle</h2>
+        <div class="option-grid" id="grid-options">
+          <button class="option-chip is-selected" data-grid="3">
+            <span class="chip-emoji">🔳</span>
+            <span>3 x 3</span>
+          </button>
+          <button class="option-chip" data-grid="4">
+            <span class="chip-emoji">🔲</span>
+            <span>4 x 4</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="option-card">
+        <h2 class="section-label">02 — Pilih Layout</h2>
+        <div class="option-grid" id="layout-options">
+          <button class="option-chip" data-count="2">
+            <span class="chip-emoji">🎫</span>
+            <span>2 Foto</span>
+          </button>
+          <button class="option-chip is-selected" data-count="3">
+            <span class="chip-emoji">📷</span>
+            <span>3 Foto</span>
+          </button>
+          <button class="option-chip" data-count="4">
+            <span class="chip-emoji">🎞️</span>
+            <span>4 Foto</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="option-card">
+        <h2 class="section-label">03 — Pilih Filter</h2>
+        <div class="option-grid" id="filter-options">
+          <button class="option-chip is-selected" data-filter="original">
+            <span class="chip-emoji">🌤️</span>
+            <span>Original</span>
+          </button>
+          <button class="option-chip" data-filter="bw">
+            <span class="chip-emoji">🖤</span>
+            <span>B&amp;W</span>
+          </button>
+          <button class="option-chip" data-filter="vintage">
+            <span class="chip-emoji">🍂</span>
+            <span>Vintage</span>
+          </button>
+          <button class="option-chip" data-filter="korean">
+            <span class="chip-emoji">🌷</span>
+            <span>Korean</span>
+          </button>
+          <button class="option-chip" data-filter="warm">
+            <span class="chip-emoji">🔥</span>
+            <span>Warm Glow</span>
+          </button>
+          <button class="option-chip" data-filter="cool">
+            <span class="chip-emoji">❄️</span>
+            <span>Cool Blue</span>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btn-start">Mulai Membuat ✨</button>
+
+      <p class="hint-text">💡 Waaiitt Pastikan ada webcam yee &amp; ama koneksi internet aktif (pelacak tangan itu model AI soalnyee, jadi butuh koneksi internet). Understand?</p>
+    </div>
+  </section>
+
+  <!-- ======================================================
+       SCREEN 1.5 — RULES / CARA MAIN (modal sebelum kamera nyala)
+  ======================================================= -->
+  <section class="screen screen--rules" id="screen-rules" data-screen="rules">
+    <div class="polaroid polaroid--small rules-card">
+      <h2 class="section-label">Cara Main 📖</h2>
+      <ol class="rules-list">
+        <li><strong>Capture</strong> — cubit jari (pinch) lalu tahan untuk mulai hitung mundur pose, kamera jepret otomatis.</li>
+        <li><strong>Assemble</strong> — susun kepingan puzzle dengan gestur pinch, geser ke posisi yang benar.</li>
+        <li><strong>Save</strong> — kepalkan tangan (fist) untuk mengunci &amp; menyimpan hasil karyamu.</li>
+      </ol>
+      <button class="btn-primary" id="btn-rules-ok">Sudah Paham, Mulai Kamera! 🎬</button>
+    </div>
+  </section>
+
+  <!-- ======================================================
+       SCREEN 2 — CAMERA + GESTURE CAPTURE
+  ======================================================= -->
+  <section class="screen screen--camera" id="screen-camera" data-screen="camera">
+    <div class="camera-stage">
+      <div class="camera-frame" id="camera-frame-slot">
+        <!-- #camera-rig (video + canvas MediaPipe) dipindahkan ke sini oleh app.js -->
+        <div class="camera-hud">
+          <span class="badge-count" id="capture-progress">📷 0 / 3</span>
+          <span class="badge-gesture" id="gesture-status">🤏 Cubit &amp; tahan untuk mulai</span>
+        </div>
+
+        <div class="loading-overlay" id="camera-loading-overlay">
+          <div class="loading-spinner" aria-hidden="true"></div>
+          <p id="loading-text">starting camera…</p>
+        </div>
+
+        <div class="countdown-overlay is-hidden" id="countdown-overlay">
+          <span class="countdown-label" id="countdown-label">Bersiap!</span>
+          <span class="countdown-number" id="countdown-number">3</span>
+        </div>
+
+        <div class="flash-overlay" id="flash-overlay" aria-hidden="true"></div>
+      </div>
+
+      <div class="camera-instructions">
+        <p><strong>Cara ambil foto:</strong> cubit jari (pinch: jempol + telunjuk nempel) di depan wajah lalu tahan sebentar, nanti ada hitungan mundur buat bersiap pose 🤍</p>
+        <button class="btn-secondary" id="btn-manual-capture">Ambil Foto Manual (fallback)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================
+       SCREEN 2.5 — REVIEW FOTO SEBELUM MASUK PUZZLE
+  ======================================================= -->
+  <section class="screen screen--review" id="screen-review" data-screen="review">
+    <div class="polaroid polaroid--small review-card">
+      <h2 class="section-label">Foto Tersimpan! 📸</h2>
+      <img id="review-photo" alt="Hasil jepretan" class="review-photo" />
+      <p class="hint-text">Memory Log — Diambil: <span id="review-timestamp"></span></p>
+      <div class="review-actions">
+        <button class="btn-secondary" id="btn-retake">Ambil Ulang 🔁</button>
+        <button class="btn-primary" id="btn-go-puzzle">Lanjut Susun Puzzle ➡️</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================
+       SCREEN 3 — SLIDING PUZZLE MINIGAME
+  ======================================================= -->
+  <section class="screen screen--puzzle" id="screen-puzzle" data-screen="puzzle">
+    <div class="puzzle-stage">
+      <div class="polaroid polaroid--small">
+        <h2 class="section-label">Susun Puzzle-nya! 🧩</h2>
+        <p class="hint-text">Pakai gerakan <strong>mencubit (pinch)</strong> untuk pilih &amp; geser kepingan. Kepal tangan ✊ untuk mengunci kalau sudah selesai. Nggak wajib kok — boleh dilewati kapan saja.</p>
+      </div>
+
+      <div class="puzzle-board" id="puzzle-board" aria-label="Papan puzzle"></div>
+
+      <div class="puzzle-controls">
+        <span class="badge-gesture" id="puzzle-gesture-status">👀 Cari tanganmu...</span>
+        <button class="btn-secondary" id="btn-shuffle-again">Acak Ulang 🔀</button>
+        <button class="btn-secondary" id="btn-skip-puzzle">Lewati Puzzle, Simpan Foto 👉</button>
+        <button class="btn-primary is-hidden" id="btn-confirm-puzzle">Kunci &amp; Simpan ✅</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================
+       SCREEN 4 — PRINTING ANIMATION
+  ======================================================= -->
+  <section class="screen screen--printing" id="screen-printing" data-screen="printing">
+    <div class="printer-stage">
+      <h2 class="section-label"> waiit lagi nycetak foto you... 🖨️</h2>
+      <div class="printer">
+        <div class="printer-body">
+          <div class="printer-slot"></div>
+        </div>
+        <div class="printed-strip" id="printed-strip"></div>
+      </div>
+      <p class="hint-text">Sabar ya, lagi keluar dari mesin cetak virtual ✨</p>
+    </div>
+  </section>
+
+  <!-- ======================================================
+       SCREEN 5 — SCRAPBOOK EDITOR
+  ======================================================= -->
+  <section class="screen screen--editor" id="screen-editor" data-screen="editor">
+    <div class="editor-stage">
+      <div class="editor-canvas-wrap">
+        <canvas id="scrapbook-canvas"></canvas>
+      </div>
+
+      <aside class="editor-panel">
+        <h2 class="section-label">Hias Foto 🎨</h2>
+
+        <div class="panel-block">
+          <p class="panel-label">Warna Bingkai</p>
+          <div class="swatch-row" id="frame-color-options">
+            <button class="swatch is-selected" data-color="#FFF7EC" style="background:#FFF7EC"></button>
+            <button class="swatch" data-color="#F6D9DF" style="background:#F6D9DF"></button>
+            <button class="swatch" data-color="#D9E4D3" style="background:#D9E4D3"></button>
+            <button class="swatch" data-color="#F4E3B2" style="background:#F4E3B2"></button>
+            <button class="swatch" data-color="#CBD9EE" style="background:#CBD9EE"></button>
+            <button class="swatch" data-color="#2E2A26" style="background:#2E2A26"></button>
+          </div>
+        </div>
+
+        <div class="panel-block">
+          <p class="panel-label">Stiker (tap buat nempel)</p>
+          <div class="sticker-tray" id="sticker-tray">
+            <button class="sticker-btn" data-sticker="⭐">⭐</button>
+            <button class="sticker-btn" data-sticker="❤️">❤️</button>
+            <button class="sticker-btn" data-sticker="😊">😊</button>
+            <button class="sticker-btn" data-sticker="🍂">🍂</button>
+            <button class="sticker-btn" data-sticker="☁️">☁️</button>
+            <button class="sticker-btn" data-sticker="☀️">☀️</button>
+            <button class="sticker-btn" data-sticker="🎵">🎵</button>
+            <button class="sticker-btn" data-sticker="🎀">🎀</button>
+          </div>
+
+          <div class="sticker-delete-row">
+            <span class="sticker-selected-label" id="sticker-selected-label">Stiker dipilih dulu kakss!</span>
+            <button class="btn-secondary btn-delete-sticker" id="btn-delete-sticker" disabled>🗑️ Hapus</button>
+          </div>
+
+          <p class="hint-text">Tap ikon stiker di atas buat nempel (otomatis kepilih). Pilih stiker dulu gak siie, biar gak terlalu polos wkwk, dengan cara tap salah satu ikon stiker ituu, lalu tinggal disesuaikan ke posisi yang lu inginkan. <strong>"Hapus"</strong> buat menghapus stiker yang menurutmu kurang pas.</p>
+        </div>
+
+        <div class="panel-block">
+          <p class="panel-label">Caption</p>
+          <input type="text" id="caption-input" maxlength="40" placeholder="tulis caption gak siii...." />
+        </div>
+
+        <div class="editor-actions">
+          <button class="btn-secondary" id="btn-restart">Ulangi dari Awal 🔁</button>
+          <button class="btn-primary" id="btn-download">Download Foto 💾</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+</main>
+
+<!-- ====== LIBRARIES: Google MediaPipe Hands (via CDN) ====== -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+
+<!-- ====== FILE JAVASCRIPT PROJECT (dipisah per fungsi/modul) ====== -->
+<script>
+/* ==================== hands.js ==================== */
+
+/* =========================================================
+   hands.js
+   Modul untuk mengelola Google MediaPipe Hands: deteksi
+   kerangka tangan real-time + fungsi bantu untuk mengenali
+   gesture (pinch, fist / kepalan tangan).
+   Modul ini tidak tahu apa-apa soal "layar" aplikasi,
+   dia cuma memberi tahu gesture apa yang sedang terjadi
+   lewat callback onResults yang didaftarkan dari luar.
+
+   CATATAN PENTING (perbaikan bug "kamera nyangkut"):
+   Sebelumnya modul ini memakai helper @mediapipe/camera_utils
+   untuk menjalankan loop pengambilan frame. Helper itu TIDAK
+   punya penanganan error yang baik — begitu satu frame saja
+   gagal diproses (misalnya pas video sempat berpindah tempat
+   di halaman), seluruh loop pelacakan tangan bisa langsung
+   berhenti total dan tidak pernah jalan lagi.
+
+   Sekarang loop-nya kita kelola sendiri pakai requestAnimationFrame
+   + try/catch, supaya:
+   - satu frame gagal tidak mematikan seluruh pelacakan,
+   - tidak ada dua proses deteksi yang tumpang-tindih
+     (dijaga lewat flag `busy`),
+   - kalau video belum siap, frame itu dilewati saja lalu
+     dicoba lagi di frame berikutnya (bukan berhenti total).
+
+   TAMBAHAN BARU (supaya aman dipakai di WebView APK):
+   - Sebelum minta izin kamera, modul ini sekarang mengecek
+     dulu apakah browser/WebView yang dipakai punya API
+     getUserMedia sama sekali DAN apakah halaman dibuka lewat
+     konteks aman (HTTPS atau localhost). Kalau tidak, modul
+     langsung melempar error yang jelas lewat onErrorCallback
+     supaya UI bisa kasih pesan yang tepat ke pengguna,
+     daripada diam-diam gagal atau error teknis yang membingungkan.
+========================================================= */
+
+const HandTracker = (() => {
+
+  let hands = null;
+  let onResultsCallback = null;
+  let onErrorCallback = null;
+  let rafId = null;
+  let busy = false;
+  let running = false;
+  let videoElRef = null;
+  let overlayCanvasElRef = null;
+  let mediaStream = null;
+
+  const LM = {
+    WRIST: 0,
+    THUMB_TIP: 4,
+    INDEX_TIP: 8,
+    INDEX_PIP: 6,
+    MIDDLE_TIP: 12,
+    MIDDLE_PIP: 10,
+    RING_TIP: 16,
+    RING_PIP: 14,
+    PINKY_TIP: 20,
+    PINKY_PIP: 18,
+  };
+
+  function distance(a, b) {
+    const dx = a.x - b.x;
+    const dy = a.y - b.y;
+    const dz = (a.z || 0) - (b.z || 0);
+    return Math.sqrt(dx * dx + dy * dy + dz * dz);
+  }
+
+  /** Jarak pinch (jempol - telunjuk) satu tangan. Nilai kecil = mencubit. */
+  function pinchDistance(landmarks) {
+    return distance(landmarks[LM.THUMB_TIP], landmarks[LM.INDEX_TIP]);
+  }
+
+  function isPinching(landmarks, threshold = 0.055) {
+    return pinchDistance(landmarks) < threshold;
+  }
+
+  /** Kepalan tangan: semua ujung jari (selain jempol) berada di BAWAH sendi PIP-nya. */
+  function isFist(landmarks) {
+    const curled = (tip, pip) => landmarks[tip].y > landmarks[pip].y;
+    const fingersCurled = [
+      curled(LM.INDEX_TIP, LM.INDEX_PIP),
+      curled(LM.MIDDLE_TIP, LM.MIDDLE_PIP),
+      curled(LM.RING_TIP, LM.RING_PIP),
+      curled(LM.PINKY_TIP, LM.PINKY_PIP),
+    ];
+    const curledCount = fingersCurled.filter(Boolean).length;
+    return curledCount >= 3; // toleransi 1 jari meleset
+  }
+
+  /** Titik tengah cubitan satu tangan, dipakai untuk drag posisi di puzzle. */
+  function pinchMidpoint(landmarks) {
+    const a = landmarks[LM.THUMB_TIP];
+    const b = landmarks[LM.INDEX_TIP];
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  }
+
+  /** Membuat Error dengan "kode" khusus supaya UI (camera.js) bisa
+   *  menampilkan pesan yang pas tanpa perlu menebak-nebak dari message. */
+  function makeError(code, message) {
+    const err = new Error(message);
+    err.code = code;
+    return err;
+  }
+
+  /** Cek awal sebelum minta akses kamera sama sekali. Ini yang membedakan
+   *  "gagal karena WebView belum izinkan" vs "gagal karena API-nya memang
+   *  tidak ada" vs "gagal karena halaman dibuka bukan lewat HTTPS". */
+  function checkEnvironmentSupport() {
+    // beberapa WebView lama/khusus tidak expose navigator.mediaDevices
+    // sama sekali kalau origin-nya dianggap tidak aman (bukan https/localhost)
+    if (!window.isSecureContext) {
+      return makeError('insecure_context', 'Halaman ini tidak dibuka lewat koneksi aman (HTTPS). Kamera hanya bisa diakses lewat HTTPS atau localhost.');
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      return makeError('no_media_devices', 'Browser/WebView ini tidak menyediakan akses kamera (getUserMedia tidak tersedia).');
+    }
+    return null;
+  }
+
+  /**
+   * @param {HTMLVideoElement} videoEl
+   * @param {HTMLCanvasElement} overlayCanvasEl
+   * @param {(result: object) => void} onResults
+   * @param {(err: Error) => void} [onError] - dipanggil kalau akses kamera gagal (mis. izin ditolak)
+   */
+  async function init(videoEl, overlayCanvasEl, onResults, onError) {
+    videoElRef = videoEl;
+    overlayCanvasElRef = overlayCanvasEl;
+    onResultsCallback = onResults;
+    onErrorCallback = onError || null;
+
+    const envError = checkEnvironmentSupport();
+    if (envError) {
+      if (onErrorCallback) onErrorCallback(envError);
+      return;
+    }
+
+    hands = new Hands({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
+    });
+
+    hands.setOptions({
+      maxNumHands: 2,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.6,
+      minTrackingConfidence: 0.6,
+    });
+
+    hands.onResults((results) => {
+      const latestLandmarks = results.multiHandLandmarks || [];
+      drawOverlay(overlayCanvasElRef, results);
+      if (onResultsCallback) {
+        onResultsCallback({
+          landmarksList: latestLandmarks,
+          isFist: latestLandmarks.some(isFist),
+          isPinchingAny: latestLandmarks.some((lm) => isPinching(lm)),
+        });
+      }
+    });
+
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480, facingMode: 'user' },
+        audio: false,
+      });
+    } catch (err) {
+      // teruskan code asli dari browser (NotAllowedError, NotFoundError, dll)
+      // supaya camera.js bisa kasih pesan yang spesifik ke pengguna
+      err.code = err.name || 'getusermedia_failed';
+      if (onErrorCallback) onErrorCallback(err);
+      return;
+    }
+
+    videoElRef.srcObject = mediaStream;
+    await videoElRef.play().catch(() => {});
+
+    running = true;
+    scheduleNextFrame();
+  }
+
+  function scheduleNextFrame() {
+    rafId = requestAnimationFrame(frameTick);
+  }
+
+  async function frameTick() {
+    if (!running) return;
+
+    // jaga-jaga: jangan kirim frame baru kalau frame sebelumnya
+    // belum selesai diproses (mencegah antrean menumpuk & macet)
+    if (!busy && videoElRef && videoElRef.readyState >= 2) {
+      busy = true;
+      try {
+        await hands.send({ image: videoElRef });
+      } catch (err) {
+        // satu frame gagal BUKAN alasan buat berhenti total —
+        // cukup dilewati, loop tetap lanjut ke frame berikutnya
+        console.warn('[HandTracker] frame terlewat, lanjut:', err && err.message);
+      } finally {
+        busy = false;
+      }
+    }
+
+    scheduleNextFrame();
+  }
+
+  function drawOverlay(canvasEl, results) {
+    if (!canvasEl) return;
+    const ctx = canvasEl.getContext('2d');
+    canvasEl.width = canvasEl.clientWidth;
+    canvasEl.height = canvasEl.clientHeight;
+    ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+
+    if (!results.multiHandLandmarks) return;
+    for (const landmarks of results.multiHandLandmarks) {
+      if (window.drawConnectors && window.HAND_CONNECTIONS) {
+        drawConnectors(ctx, landmarks, HAND_CONNECTIONS, { color: '#D98A9E', lineWidth: 3 });
+      }
+      if (window.drawLandmarks) {
+        drawLandmarks(ctx, landmarks, { color: '#8FA88A', lineWidth: 1, radius: 3 });
+      }
+    }
+  }
+
+  function stop() {
+    running = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+    if (mediaStream) {
+      mediaStream.getTracks().forEach((track) => track.stop());
+      mediaStream = null;
+    }
+  }
+
+  return { init, stop, isPinching, isFist, pinchMidpoint, pinchDistance, LM };
+})();
+
+
+/* ==================== puzzle.js ==================== */
+
+/* =========================================================
+   puzzle.js
+   Logika mini-game sliding puzzle 3x3. Foto yang baru
+   diambil dipotong jadi 9 keping (memakai trik CSS
+   background-position), lalu diacak. Pemain menyusun
+   ulang dengan menukar (swap) dua keping.
+
+   Kontrol yang didukung:
+   - Mouse/tap: klik keping A lalu klik keping B untuk tukar.
+   - Gesture pinch (dari hands.js): "pegang" keping yang
+     posisinya paling dekat titik cubitan, geser, lalu lepas
+     cubitan di atas keping lain untuk menukar.
+========================================================= */
+
+class SlidingPuzzle {
+  /**
+   * @param {HTMLElement} boardEl - container div papan puzzle
+   * @param {string} photoDataUrl - foto hasil jepretan (data URL)
+   * @param {number} size - ukuran grid, default 3 (3x3)
+   */
+  constructor(boardEl, photoDataUrl, size = 3) {
+    this.boardEl = boardEl;
+    this.photoDataUrl = photoDataUrl;
+    this.size = size;
+    this.totalTiles = size * size;
+
+    // order[slotIndex] = originalTileIndex yang sedang menempati slot itu
+    this.order = [...Array(this.totalTiles).keys()];
+    this.tileEls = [];
+    this.selectedSlot = null;
+
+    this._build();
+    this.shuffle();
+  }
+
+  _build() {
+    this.boardEl.innerHTML = '';
+    const tileSizePct = 100 / this.size;
+
+    for (let slot = 0; slot < this.totalTiles; slot++) {
+      const tile = document.createElement('div');
+      tile.className = 'puzzle-tile';
+      tile.dataset.slot = String(slot);
+      tile.style.width = `${tileSizePct}%`;
+      tile.style.height = `${tileSizePct}%`;
+      tile.style.backgroundImage = `url(${this.photoDataUrl})`;
+      tile.style.backgroundSize = `${this.size * 100}% ${this.size * 100}%`;
+      tile.addEventListener('click', () => this.selectSlot(slot));
+      this.boardEl.appendChild(tile);
+      this.tileEls.push(tile);
+    }
+    this._layout(tileSizePct);
+  }
+
+  _layout(tileSizePct) {
+    for (let slot = 0; slot < this.totalTiles; slot++) {
+      const row = Math.floor(slot / this.size);
+      const col = slot % this.size;
+      const tile = this.tileEls[slot];
+      tile.style.left = `${col * tileSizePct}%`;
+      tile.style.top = `${row * tileSizePct}%`;
+    }
+  }
+
+  /** Menghitung posisi background-position untuk originalTileIndex tertentu. */
+  _bgPositionFor(originalIndex) {
+    const row = Math.floor(originalIndex / this.size);
+    const col = originalIndex % this.size;
+    const step = 100 / (this.size - 1);
+    return `${col * step}% ${row * step}%`;
+  }
+
+  render() {
+    for (let slot = 0; slot < this.totalTiles; slot++) {
+      const originalIndex = this.order[slot];
+      const tile = this.tileEls[slot];
+      tile.style.backgroundPosition = this._bgPositionFor(originalIndex);
+      tile.classList.toggle('is-correct', originalIndex === slot);
+      tile.classList.toggle('is-selected', slot === this.selectedSlot);
+    }
+  }
+
+  shuffle() {
+    do {
+      for (let i = this.order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [this.order[i], this.order[j]] = [this.order[j], this.order[i]];
+      }
+    } while (this.isSolved()); // jangan sampai keacak jadi kebetulan sudah benar
+    this.selectedSlot = null;
+    this.render();
+  }
+
+  selectSlot(slot) {
+    if (this.selectedSlot === null) {
+      this.selectedSlot = slot;
+    } else if (this.selectedSlot === slot) {
+      this.selectedSlot = null; // batal pilih
+    } else {
+      this.swap(this.selectedSlot, slot);
+      this.selectedSlot = null;
+    }
+    this.render();
+  }
+
+  swap(slotA, slotB) {
+    [this.order[slotA], this.order[slotB]] = [this.order[slotB], this.order[slotA]];
+  }
+
+  isSolved() {
+    return this.order.every((originalIndex, slot) => originalIndex === slot);
+  }
+
+  /** Mengembalikan index slot (0..8) berdasarkan koordinat relatif 0..1 pada papan. */
+  slotFromRelativePoint(relX, relY) {
+    const col = Math.min(this.size - 1, Math.max(0, Math.floor(relX * this.size)));
+    const row = Math.min(this.size - 1, Math.max(0, Math.floor(relY * this.size)));
+    return row * this.size + col;
+  }
+
+  destroy() {
+    this.boardEl.innerHTML = '';
+  }
+}
+
+/** Utility: memotong sebuah data URL foto menjadi satu gambar utuh siap dipakai
+ *  sebagai background-image di setiap keping (potongan sebenarnya dilakukan
+ *  murni lewat CSS background-position, jadi fungsi ini hanya passthrough,
+ *  disiapkan sebagai titik ekstensi kalau nanti mau potong per-tile jadi file
+ *  gambar terpisah). */
+function preparePuzzleImage(dataUrl) {
+  return Promise.resolve(dataUrl);
+}
+
+
+/* ==================== camera.js ==================== */
+
+/* =========================================================
+   camera.js
+   Mengatur akses webcam, filter tampilan, dan proses
+   pengambilan foto lewat gesture MENCUBIT (pinch) satu tangan.
+
+   Alur capture (supaya pengguna sempat bersiap pose,
+   TIDAK langsung jepret):
+   1. Pengguna mencubit & menahan ± 700ms  -> "diarmed"
+   2. Begitu diarmed, muncul overlay hitung mundur besar
+      "Bersiap! 3...2...1" selama 3 detik penuh (tidak bisa
+      dibatalkan cuma dengan lepas cubitan, supaya pengguna
+      benar-benar dapat waktu pose).
+   3. Setelah hitung mundur habis -> efek flash -> foto diambil.
+
+   TAMBAHAN BARU (penanganan error kamera untuk WebView/APK):
+   handleCameraError sekarang membedakan beberapa penyebab umum
+   gagal akses kamera di WebView Android, dan menampilkan pesan
+   Indonesia yang sesuai + tombol "Coba Lagi" supaya pengguna
+   tidak harus reload manual halamannya.
+========================================================= */
+
+const CameraModule = (() => {
+
+  const FILTERS = {
+    original: 'none',
+    bw:       'grayscale(1) contrast(1.05)',
+    vintage:  'sepia(0.45) saturate(1.3) contrast(0.95) brightness(1.05)',
+    korean:   'brightness(1.12) saturate(0.85) contrast(0.95) sepia(0.08)',
+    warm:     'sepia(0.25) saturate(1.4) brightness(1.08) hue-rotate(-8deg)',
+    cool:     'saturate(1.15) brightness(1.03) hue-rotate(15deg) contrast(1.03)',
+  };
+
+  let videoEl, overlayCanvasEl, captureCanvasEl;
+  let currentFilter = 'original';
+  let armHoldStart = null;
+  const ARM_HOLD_MS = 700;
+  const POSE_COUNTDOWN_SECONDS = 3;
+  let capturing = false;
+  let armed = false;
+  let onPhotoCaptured = null;
+  let captureEnabled = false;
+  let externalGestureHandler = null;
+  let started = false;
+  let modelReady = false;
+
+  async function start(videoElement, overlayCanvas, captureCanvas, filterKey, onCaptured) {
+    videoEl = videoElement;
+    overlayCanvasEl = overlayCanvas;
+    captureCanvasEl = captureCanvas;
+    currentFilter = filterKey;
+    onPhotoCaptured = onCaptured;
+    videoEl.style.filter = FILTERS[currentFilter] || 'none';
+
+    if (!started) {
+      // hanya tampilkan overlay loading di sesi kamera yang PERTAMA kali —
+      // kamera & model AI cuma perlu di-init sekali lalu jalan terus
+      // di background lintas layar (lihat app.js: goToPuzzleScreen/goToCameraScreen)
+      started = true;
+      showLoading('starting camera…');
+      videoEl.addEventListener('loadeddata', () => {
+        showLoading('loading HandLandmarker model…');
+      }, { once: true });
+      HandTracker.init(videoEl, overlayCanvasEl, handleGestureResult, handleCameraError);
+    } else {
+      // kamera & model sudah siap dari sesi sebelumnya — pastikan overlay
+      // loading TIDAK nyangkut ketinggalan nutupin video (ini yang bikin
+      // videonya kelihatan seperti "diblokir" di pengambilan foto berikutnya)
+      hideLoading();
+    }
+  }
+
+  function showLoading(text) {
+    const overlay = document.getElementById('camera-loading-overlay');
+    const label = document.getElementById('loading-text');
+    if (overlay) overlay.classList.remove('is-error');
+    if (label) label.textContent = text;
+    if (overlay) overlay.classList.remove('is-hidden');
+  }
+
+  function hideLoading() {
+    const overlay = document.getElementById('camera-loading-overlay');
+    if (overlay) overlay.classList.add('is-hidden');
+  }
+
+  /** Pesan Indonesia yang spesifik per jenis error, supaya pengguna tahu
+   *  harus ngapain (bukan cuma "kamera error" yang membingungkan). */
+  function messageForError(err) {
+    const code = (err && err.code) || '';
+    switch (code) {
+      case 'insecure_context':
+        return '🔒 Halaman ini belum dibuka lewat HTTPS, jadi kamera diblokir browser/WebView. Host halaman ini di alamat HTTPS (bukan file:// atau http:// biasa).';
+      case 'no_media_devices':
+        return '🚫 WebView/browser ini tidak mendukung akses kamera sama sekali. Coba buka pakai Chrome, atau pastikan aplikasi APK-nya sudah mengizinkan akses kamera web (WebChromeClient.onPermissionRequest).';
+      case 'NotAllowedError':
+      case 'PermissionDeniedError':
+        return '🚫 Izin kamera ditolak. Buka pengaturan aplikasi/browser ini → Izin → aktifkan Kamera, lalu muat ulang halaman.';
+      case 'NotFoundError':
+      case 'DevicesNotFoundError':
+        return '📷 Tidak ada kamera yang terdeteksi di perangkat ini.';
+      case 'NotReadableError':
+      case 'TrackStartError':
+        return '⚠️ Kamera sedang dipakai aplikasi lain, atau gagal diakses oleh sistem. Tutup aplikasi lain yang memakai kamera lalu coba lagi.';
+      case 'SecurityError':
+        return '🔒 Akses kamera diblokir karena alasan keamanan (kemungkinan halaman tidak dibuka lewat HTTPS).';
+      default:
+        return '🚫 Kamera tidak bisa diakses — cek izin, atau pakai tombol manual.';
+    }
+  }
+
+  function handleCameraError(err) {
+    console.warn('[CameraModule] gagal akses kamera:', err && err.code, err && err.message);
+    const overlay = document.getElementById('camera-loading-overlay');
+    const label = document.getElementById('loading-text');
+    const statusEl = document.getElementById('gesture-status');
+    const message = messageForError(err);
+
+    if (statusEl) statusEl.textContent = message;
+
+    // tampilkan juga pesan + tombol coba lagi di overlay supaya kelihatan
+    // jelas (bukan cuma teks kecil di badge gesture yang gampang kelewat)
+    if (overlay && label) {
+      overlay.classList.remove('is-hidden');
+      overlay.classList.add('is-error');
+      label.innerHTML = '';
+      const p = document.createElement('p');
+      p.textContent = message;
+      p.style.margin = '0';
+      const retryBtn = document.createElement('button');
+      retryBtn.textContent = '🔁 Coba Lagi';
+      retryBtn.className = 'btn-secondary';
+      retryBtn.style.marginTop = '4px';
+      retryBtn.onclick = () => {
+        started = false;
+        CameraModule.start(videoEl, overlayCanvasEl, captureCanvasEl, currentFilter, onPhotoCaptured);
+      };
+      label.appendChild(p);
+      label.appendChild(retryBtn);
+    }
+  }
+
+  /** Modul lain (mis. app.js untuk layar puzzle) bisa "numpang dengar"
+   *  setiap hasil deteksi gesture tanpa mengganggu logika capture di sini. */
+  function setExternalGestureHandler(fn) {
+    externalGestureHandler = fn;
+  }
+
+  function setCaptureEnabled(enabled) {
+    captureEnabled = enabled;
+    armHoldStart = null;
+    armed = false;
+  }
+
+  function setFilter(filterKey) {
+    currentFilter = filterKey;
+    if (videoEl) videoEl.style.filter = FILTERS[currentFilter] || 'none';
+  }
+
+  function handleGestureResult(result) {
+    if (!modelReady) {
+      modelReady = true;
+      hideLoading();
+    }
+    if (externalGestureHandler) externalGestureHandler(result);
+    if (!captureEnabled || capturing || armed) return;
+
+    const statusEl = document.getElementById('gesture-status');
+    const { landmarksList } = result;
+    const pinching = landmarksList.length > 0 && landmarksList.some((lm) => HandTracker.isPinching(lm));
+
+    if (pinching) {
+      if (armHoldStart === null) armHoldStart = performance.now();
+      const elapsed = performance.now() - armHoldStart;
+      if (statusEl) statusEl.textContent = `🤏 Menahan cubitan... ${Math.min(100, Math.round((elapsed / ARM_HOLD_MS) * 100))}%`;
+      if (elapsed >= ARM_HOLD_MS) {
+        armHoldStart = null;
+        armed = true;
+        startPoseCountdown();
+      }
+    } else {
+      armHoldStart = null;
+      if (statusEl) statusEl.textContent = '🤏 Cubit & tahan untuk mulai';
+    }
+  }
+
+  /** Hitung mundur "bersiap pose" — begitu dimulai, jalan penuh sampai selesai
+   *  supaya pengguna betul-betul dapat waktu untuk berpose, tidak langsung jepret. */
+  function startPoseCountdown() {
+    capturing = true;
+    const overlay = document.getElementById('countdown-overlay');
+    const label = document.getElementById('countdown-label');
+    const number = document.getElementById('countdown-number');
+    const statusEl = document.getElementById('gesture-status');
+
+    if (statusEl) statusEl.textContent = '✅ Siap-siap, jangan gerak dulu ya!';
+    if (label) label.textContent = 'Bersiap!';
+    if (overlay) overlay.classList.remove('is-hidden');
+
+    let n = POSE_COUNTDOWN_SECONDS;
+    if (number) {
+      number.textContent = String(n);
+      number.style.animation = 'none';
+      // eslint-disable-next-line no-unused-expressions
+      number.offsetHeight;
+      number.style.animation = '';
+    }
+
+    const timer = setInterval(() => {
+      n -= 1;
+      if (n <= 0) {
+        clearInterval(timer);
+        if (overlay) overlay.classList.add('is-hidden');
+        doFlashAndSnap();
+      } else if (number) {
+        number.textContent = String(n);
+        number.style.animation = 'none';
+        // eslint-disable-next-line no-unused-expressions
+        number.offsetHeight;
+        number.style.animation = '';
+      }
+    }, 1000);
+  }
+
+  function doFlashAndSnap() {
+    const flash = document.getElementById('flash-overlay');
+    if (flash) {
+      flash.classList.remove('is-flashing');
+      // eslint-disable-next-line no-unused-expressions
+      flash.offsetHeight;
+      flash.classList.add('is-flashing');
+    }
+    const dataUrl = snapPhoto();
+    capturing = false;
+    armed = false;
+    if (onPhotoCaptured) onPhotoCaptured(dataUrl);
+  }
+
+  /** Dipanggil oleh tombol manual (fallback aksesibilitas):
+   *  tetap lewat hitung mundur pose, cuma pemicunya klik, bukan gesture. */
+  function triggerCapture() {
+    if (capturing || armed) return;
+    armed = true;
+    startPoseCountdown();
+  }
+
+  function snapPhoto() {
+    const w = videoEl.videoWidth || 640;
+    const h = videoEl.videoHeight || 480;
+    captureCanvasEl.width = w;
+    captureCanvasEl.height = h;
+    const ctx = captureCanvasEl.getContext('2d');
+
+    // mirror horizontal supaya sesuai apa yang dilihat pengguna
+    ctx.save();
+    ctx.translate(w, 0);
+    ctx.scale(-1, 1);
+    ctx.filter = FILTERS[currentFilter] || 'none';
+    ctx.drawImage(videoEl, 0, 0, w, h);
+    ctx.restore();
+
+    // crop jadi persegi (1:1) biar pas dipotong grid puzzle
+    const cropSize = Math.min(w, h);
+    const sx = (w - cropSize) / 2;
+    const sy = (h - cropSize) / 2;
+    const squareCanvas = document.createElement('canvas');
+    squareCanvas.width = 480;
+    squareCanvas.height = 480;
+    const sctx = squareCanvas.getContext('2d');
+    sctx.drawImage(captureCanvasEl, sx, sy, cropSize, cropSize, 0, 0, 480, 480);
+
+    return squareCanvas.toDataURL('image/jpeg', 0.92);
+  }
+
+  function stop() {
+    HandTracker.stop();
+    armHoldStart = null;
+    capturing = false;
+    armed = false;
+  }
+
+  return { start, stop, setFilter, triggerCapture, setExternalGestureHandler, setCaptureEnabled, FILTERS };
+})();
+
+
+/* ==================== scrapbook.js ==================== */
+
+/* =========================================================
+   scrapbook.js
+   Editor akhir: menyusun foto-foto yang sudah dipecahkan
+   puzzle-nya ke dalam layout photobooth strip, lalu
+   memungkinkan pengguna menambahkan stiker, memilih warna
+   bingkai, menulis caption, dan mengunduh hasil akhirnya
+   sebagai gambar PNG.
+
+   Sistem stiker: tap sebuah stiker di kanvas untuk MEMILIHNYA
+   (ditandai lingkaran putus-putus) — dari situ bisa langsung
+   digeser posisinya, atau dihapus SATU PERSATU lewat tombol
+   "Hapus" di panel (tidak menghapus semua stiker sekaligus).
+========================================================= */
+
+class ScrapbookEditor {
+  /**
+   * @param {HTMLCanvasElement} canvasEl
+   * @param {string[]} photoDataUrls
+   * @param {number} photoCount - jumlah foto dalam strip (2, 3, atau 4)
+   */
+  constructor(canvasEl, photoDataUrls, photoCount) {
+    this.canvas = canvasEl;
+    this.ctx = canvasEl.getContext('2d');
+    this.photos = [];
+    this.photoDataUrls = photoDataUrls;
+    this.photoCount = photoCount || photoDataUrls.length;
+    this.frameColor = '#FFF7EC';
+    this.caption = '';
+    this.stickers = []; // {emoji, x, y, size}
+    this.draggingSticker = null;
+    this.dragOffset = { x: 0, y: 0 };
+    this.selectedStickerIndex = null; // stiker yang lagi dipilih (buat dihapus/ditandai)
+    this.onSelectionChange = null;    // callback(sticker|null) — diisi dari luar (app.js)
+
+    this._configureLayout();
+    this._bindPointerEvents();
+  }
+
+  _configureLayout() {
+    const PAD = 24;
+    const GAP = 14;
+    const stripPhotoSize = 260;
+    const count = this.photoCount;
+
+    this.canvas.width = PAD * 2 + stripPhotoSize;
+    this.canvas.height = PAD * 2 + count * stripPhotoSize + (count - 1) * GAP + 60;
+    this.slots = [];
+    for (let i = 0; i < count; i++) {
+      this.slots.push({
+        x: PAD,
+        y: PAD + i * (stripPhotoSize + GAP),
+        w: stripPhotoSize,
+        h: stripPhotoSize,
+      });
+    }
+  }
+
+  async loadPhotos() {
+    const loadImg = (src) => new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.src = src;
+    });
+    this.photos = await Promise.all(this.photoDataUrls.map(loadImg));
+    this.render();
+  }
+
+  setFrameColor(color) {
+    this.frameColor = color;
+    this.render();
+  }
+
+  setCaption(text) {
+    this.caption = text;
+    this.render();
+  }
+
+  addSticker(emoji) {
+    this.stickers.push({
+      emoji,
+      x: this.canvas.width / 2,
+      y: this.canvas.height / 2,
+      size: 46,
+    });
+    // stiker baru otomatis kepilih, biar gampang langsung digeser
+    // atau langsung dihapus kalau ternyata salah pencet
+    this.selectedStickerIndex = this.stickers.length - 1;
+    this._notifySelection();
+    this.render();
+  }
+
+  /** Menghapus HANYA stiker yang lagi dipilih (bukan semua stiker). */
+  removeSelectedSticker() {
+    if (this.selectedStickerIndex === null) return;
+    this.stickers.splice(this.selectedStickerIndex, 1);
+    this.selectedStickerIndex = null;
+    this._notifySelection();
+    this.render();
+  }
+
+  _notifySelection() {
+    if (typeof this.onSelectionChange === 'function') {
+      const sticker = this.selectedStickerIndex !== null ? this.stickers[this.selectedStickerIndex] : null;
+      this.onSelectionChange(sticker);
+    }
+  }
+
+  render() {
+    const ctx = this.ctx;
+    const { width, height } = this.canvas;
+
+    // latar / bingkai
+    ctx.fillStyle = this.frameColor;
+    ctx.fillRect(0, 0, width, height);
+
+    // foto-foto
+    this.slots.forEach((slot, i) => {
+      const img = this.photos[i];
+      ctx.save();
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(slot.x - 4, slot.y - 4, slot.w + 8, slot.h + 8);
+      if (img) ctx.drawImage(img, slot.x, slot.y, slot.w, slot.h);
+      ctx.restore();
+    });
+
+    // caption
+    if (this.caption) {
+      const isDark = this._isColorDark(this.frameColor);
+      ctx.fillStyle = isDark ? '#FFF7EC' : '#2E2A26';
+      ctx.font = '28px Caveat, cursive';
+      ctx.textAlign = 'center';
+      ctx.fillText(this.caption, width / 2, height - 20);
+    }
+
+    // penanda lingkaran putus-putus di stiker yang lagi dipilih
+    if (this.selectedStickerIndex !== null && this.stickers[this.selectedStickerIndex]) {
+      const sel = this.stickers[this.selectedStickerIndex];
+      ctx.save();
+      ctx.strokeStyle = '#D98A9E';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.arc(sel.x, sel.y, sel.size / 2 + 10, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // stiker
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    this.stickers.forEach((s) => {
+      ctx.font = `${s.size}px sans-serif`;
+      ctx.fillText(s.emoji, s.x, s.y);
+    });
+  }
+
+  _isColorDark(hex) {
+    const c = hex.replace('#', '');
+    const r = parseInt(c.substring(0, 2), 16);
+    const g = parseInt(c.substring(2, 4), 16);
+    const b = parseInt(c.substring(4, 6), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance < 0.5;
+  }
+
+  _canvasPointFromEvent(evt) {
+    const rect = this.canvas.getBoundingClientRect();
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    return {
+      x: (evt.clientX - rect.left) * scaleX,
+      y: (evt.clientY - rect.top) * scaleY,
+    };
+  }
+
+  _stickerAt(point) {
+    // cari dari yang paling atas (terakhir ditambahkan)
+    for (let i = this.stickers.length - 1; i >= 0; i--) {
+      const s = this.stickers[i];
+      const half = s.size / 2;
+      if (Math.abs(point.x - s.x) < half && Math.abs(point.y - s.y) < half) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  _bindPointerEvents() {
+    this.canvas.addEventListener('pointerdown', (evt) => {
+      const point = this._canvasPointFromEvent(evt);
+      const idx = this._stickerAt(point);
+      if (idx >= 0) {
+        // tap kena stiker -> pilih stiker itu (sekaligus siap digeser)
+        this.draggingSticker = idx;
+        this.selectedStickerIndex = idx;
+        const s = this.stickers[idx];
+        this.dragOffset = { x: point.x - s.x, y: point.y - s.y };
+      } else {
+        // tap kena area kosong -> batal pilih
+        this.selectedStickerIndex = null;
+      }
+      this._notifySelection();
+      this.render();
+    });
+
+    this.canvas.addEventListener('pointermove', (evt) => {
+      if (this.draggingSticker === null) return;
+      const point = this._canvasPointFromEvent(evt);
+      const s = this.stickers[this.draggingSticker];
+      s.x = point.x - this.dragOffset.x;
+      s.y = point.y - this.dragOffset.y;
+      this.render();
+    });
+
+    window.addEventListener('pointerup', () => {
+      this.draggingSticker = null;
+    });
+  }
+
+  download(filename = 'scrapbook-puzzle-cam.png') {
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = this.canvas.toDataURL('image/png');
+    link.click();
+  }
+}
+
+
+/* ==================== app.js ==================== */
+
+/* =========================================================
+   app.js
+   "Otak" aplikasi: menyimpan state (grid size, layout, filter,
+   foto-foto yang sudah diambil), mengatur perpindahan antar
+   layar, dan menyambungkan modul-modul lain (hands, camera,
+   puzzle, scrapbook) supaya bekerja sama sebagai satu alur
+   photobooth: Rules -> Capture -> Review -> Assemble -> Save.
+========================================================= */
+
+(function () {
+  const state = {
+    gridSize: 3,        // 3 => puzzle 3x3, 4 => puzzle 4x4
+    photoCount: 3,       // jumlah foto dalam strip (2 / 3 / 4)
+    filter: 'original',
+    photos: [],            // dataURL foto yang SUDAH lolos puzzle, urut sesuai slot
+  };
+
+  let pendingPhoto = null; // dataURL foto yg baru dijepret, menunggu direview
+
+  // ---- referensi elemen ----
+  const screens = Array.from(document.querySelectorAll('.screen'));
+  const cameraRig = document.getElementById('camera-rig');
+  const cameraFrameSlot = document.getElementById('camera-frame-slot');
+  const webcamEl = document.getElementById('webcam');
+  const overlayEl = document.getElementById('hand-overlay');
+  const captureCanvasEl = document.getElementById('capture-canvas');
+
+  let currentPuzzle = null;
+  let pinchCursorEl = null;
+  let heldSlot = null;
+  let fistHoldStart = null;
+  const FIST_CONFIRM_MS = 900;
+
+  function showScreen(name) {
+    screens.forEach((s) => s.classList.toggle('is-active', s.dataset.screen === name));
+  }
+
+  /* =========================================================
+     LAYAR 1 — HOME
+  ========================================================= */
+  function initHomeScreen() {
+    const gridButtons = document.querySelectorAll('#grid-options .option-chip');
+    gridButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        gridButtons.forEach((b) => b.classList.remove('is-selected'));
+        btn.classList.add('is-selected');
+        state.gridSize = parseInt(btn.dataset.grid, 10);
+      });
+    });
+
+    const layoutButtons = document.querySelectorAll('#layout-options .option-chip');
+    layoutButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        layoutButtons.forEach((b) => b.classList.remove('is-selected'));
+        btn.classList.add('is-selected');
+        state.photoCount = parseInt(btn.dataset.count, 10);
+      });
+    });
+
+    const filterButtons = document.querySelectorAll('#filter-options .option-chip');
+    filterButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach((b) => b.classList.remove('is-selected'));
+        btn.classList.add('is-selected');
+        state.filter = btn.dataset.filter;
+        CameraModule.setFilter(state.filter);
+      });
+    });
+
+    document.getElementById('btn-start').addEventListener('click', () => {
+      state.photos = [];
+      showScreen('rules');
+    });
+
+    document.getElementById('btn-rules-ok').addEventListener('click', () => {
+      goToCameraScreen();
+    });
+  }
+
+  /* =========================================================
+     LAYAR 2 — CAMERA
+  ========================================================= */
+  function goToCameraScreen() {
+    showScreen('camera');
+    // pindahkan rig kamera ke slot layar kamera & tampilkan penuh
+    cameraFrameSlot.prepend(cameraRig);
+    cameraRig.classList.remove('camera-rig--parked');
+    // jaga-jaga: sebagian browser bisa menghentikan playback video saat
+    // elemen dipindah-pindah di DOM, jadi kita paksa lanjutkan lagi
+    webcamEl.play().catch(() => {});
+
+    updateCaptureProgressBadge();
+
+    CameraModule.start(webcamEl, overlayEl, captureCanvasEl, state.filter, onPhotoCaptured);
+    CameraModule.setCaptureEnabled(true);
+  }
+
+  function updateCaptureProgressBadge() {
+    const badge = document.getElementById('capture-progress');
+    badge.textContent = `📷 ${state.photos.length} / ${state.photoCount}`;
+  }
+
+  function onPhotoCaptured(dataUrl) {
+    CameraModule.setCaptureEnabled(false);
+    pendingPhoto = dataUrl;
+    goToReviewScreen(dataUrl);
+  }
+
+  document.getElementById('btn-manual-capture').addEventListener('click', () => {
+    CameraModule.triggerCapture();
+  });
+
+  /* =========================================================
+     LAYAR 2.5 — REVIEW FOTO
+  ========================================================= */
+  function goToReviewScreen(dataUrl) {
+    showScreen('review');
+    document.getElementById('review-photo').src = dataUrl;
+    const now = new Date();
+    document.getElementById('review-timestamp').textContent =
+      now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) +
+      ' ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  document.getElementById('btn-retake').addEventListener('click', () => {
+    pendingPhoto = null;
+    goToCameraScreen();
+  });
+
+  document.getElementById('btn-go-puzzle').addEventListener('click', () => {
+    if (pendingPhoto) goToPuzzleScreen(pendingPhoto);
+  });
+
+  /* =========================================================
+     LAYAR 3 — PUZZLE MINIGAME
+  ========================================================= */
+  function goToPuzzleScreen(rawPhotoDataUrl) {
+    showScreen('puzzle');
+    // "parkir" rig kamera (tetap jalan di background, tidak terlihat)
+    document.body.appendChild(cameraRig);
+    cameraRig.classList.add('camera-rig--parked');
+    webcamEl.play().catch(() => {});
+
+    const boardEl = document.getElementById('puzzle-board');
+    currentPuzzle = new SlidingPuzzle(boardEl, rawPhotoDataUrl, state.gridSize);
+    currentPuzzle._pendingRawPhoto = rawPhotoDataUrl;
+
+    ensurePinchCursor(boardEl);
+    document.getElementById('btn-confirm-puzzle').classList.add('is-hidden');
+
+    CameraModule.setExternalGestureHandler(handlePuzzleGesture);
+  }
+
+  function ensurePinchCursor(boardEl) {
+    if (!pinchCursorEl) {
+      pinchCursorEl = document.createElement('div');
+      pinchCursorEl.className = 'pinch-cursor';
+      pinchCursorEl.style.opacity = '0';
+    }
+    boardEl.appendChild(pinchCursorEl);
+  }
+
+  function handlePuzzleGesture({ landmarksList, isFist }) {
+    const statusEl = document.getElementById('puzzle-gesture-status');
+    const boardEl = document.getElementById('puzzle-board');
+    if (!currentPuzzle || !boardEl) return;
+
+    if (!landmarksList.length) {
+      if (statusEl) statusEl.textContent = '👀 Cari tanganmu...';
+      pinchCursorEl.style.opacity = '0';
+      fistHoldStart = null;
+      return;
+    }
+
+    // pakai tangan pertama yang terdeteksi untuk kontrol pinch-drag
+    const hand = landmarksList[0];
+    const pinching = HandTracker.isPinching(hand);
+    const mid = HandTracker.pinchMidpoint(hand);
+
+    // kamera video di-mirror (scaleX -1) secara visual, tapi landmark
+    // mentah dari MediaPipe sudah dalam koordinat gambar asli (belum di-mirror).
+    // Supaya gerak tangan kanan pengguna = gerak ke kanan di board, kita mirror-kan x.
+    const relX = 1 - mid.x;
+    const relY = mid.y;
+
+    const rect = boardEl.getBoundingClientRect();
+    pinchCursorEl.style.left = `${relX * rect.width}px`;
+    pinchCursorEl.style.top = `${relY * rect.height}px`;
+    pinchCursorEl.style.opacity = pinching ? '1' : '0.35';
+
+    if (pinching) {
+      const slot = currentPuzzle.slotFromRelativePoint(relX, relY);
+      if (heldSlot === null) {
+        heldSlot = slot;
+        currentPuzzle.selectedSlot = slot;
+        currentPuzzle.render();
+      } else if (slot !== heldSlot) {
+        currentPuzzle.swap(heldSlot, slot);
+        heldSlot = slot;
+        currentPuzzle.selectedSlot = slot;
+        currentPuzzle.render();
+      }
+    } else {
+      heldSlot = null;
+      currentPuzzle.selectedSlot = null;
+      currentPuzzle.render();
+    }
+
+    if (statusEl) {
+      statusEl.textContent = pinching ? '🤏 Menggeser keping...' : '🖐️ Cubit keping untuk memindah';
+    }
+
+    // deteksi kepalan tangan untuk konfirmasi kalau sudah selesai
+    if (isFist && currentPuzzle.isSolved()) {
+      if (fistHoldStart === null) fistHoldStart = performance.now();
+      const elapsed = performance.now() - fistHoldStart;
+      if (statusEl) statusEl.textContent = `✊ Mengunci... ${Math.min(100, Math.round((elapsed / FIST_CONFIRM_MS) * 100))}%`;
+      if (elapsed >= FIST_CONFIRM_MS) {
+        fistHoldStart = null;
+        confirmPuzzleSolved();
+      }
+    } else {
+      fistHoldStart = null;
+    }
+
+    // tombol konfirmasi manual juga muncul begitu puzzle benar (fallback)
+    document.getElementById('btn-confirm-puzzle').classList.toggle('is-hidden', !currentPuzzle.isSolved());
+  }
+
+  document.getElementById('btn-shuffle-again').addEventListener('click', () => {
+    if (currentPuzzle) currentPuzzle.shuffle();
+  });
+
+  document.getElementById('btn-confirm-puzzle').addEventListener('click', () => {
+    if (currentPuzzle && currentPuzzle.isSolved()) confirmPuzzleSolved();
+  });
+
+  document.getElementById('btn-skip-puzzle').addEventListener('click', () => {
+    // pengguna boleh melewati mini-game puzzle kapan saja — foto tetap
+    // disimpan apa adanya, langsung lanjut ke sesi foto berikutnya
+    confirmPuzzleSolved();
+  });
+
+  function confirmPuzzleSolved() {
+    if (!currentPuzzle) return;
+    state.photos.push(currentPuzzle._pendingRawPhoto);
+    currentPuzzle.destroy();
+    currentPuzzle = null;
+    heldSlot = null;
+    pendingPhoto = null;
+
+    if (state.photos.length >= state.photoCount) {
+      goToPrintingScreen();
+    } else {
+      goToCameraScreen();
+    }
+  }
+
+  /* =========================================================
+     LAYAR 4 — PRINTING ANIMATION
+  ========================================================= */
+  function goToPrintingScreen() {
+    showScreen('printing');
+    CameraModule.setExternalGestureHandler(null);
+
+    const printedStrip = document.getElementById('printed-strip');
+    printedStrip.innerHTML = '';
+    printedStrip.style.setProperty('--strip-height', `${state.photos.length * 130}px`);
+
+    state.photos.forEach((src) => {
+      const img = document.createElement('img');
+      img.src = src;
+      printedStrip.appendChild(img);
+    });
+
+    // restart animasi CSS
+    printedStrip.style.animation = 'none';
+    // eslint-disable-next-line no-unused-expressions
+    printedStrip.offsetHeight; // reflow trick
+    printedStrip.style.animation = '';
+
+    setTimeout(goToEditorScreen, 2800);
+  }
+
+  /* =========================================================
+     LAYAR 5 — SCRAPBOOK EDITOR
+  ========================================================= */
+  let editor = null;
+
+  function goToEditorScreen() {
+    showScreen('editor');
+    CameraModule.stop();
+    cameraRig.remove();
+
+    const canvasEl = document.getElementById('scrapbook-canvas');
+    editor = new ScrapbookEditor(canvasEl, state.photos, state.photoCount);
+    editor.loadPhotos();
+
+    initEditorControls();
+  }
+
+  function initEditorControls() {
+    const colorButtons = document.querySelectorAll('#frame-color-options .swatch');
+    colorButtons.forEach((btn) => {
+      btn.onclick = () => {
+        colorButtons.forEach((b) => b.classList.remove('is-selected'));
+        btn.classList.add('is-selected');
+        editor.setFrameColor(btn.dataset.color);
+      };
+    });
+
+    document.querySelectorAll('#sticker-tray .sticker-btn').forEach((btn) => {
+      btn.onclick = () => editor.addSticker(btn.dataset.sticker);
+    });
+
+    // hubungkan tombol "Hapus" dengan stiker yang lagi dipilih di kanvas
+    const deleteStickerBtn = document.getElementById('btn-delete-sticker');
+    const selectedLabel = document.getElementById('sticker-selected-label');
+    editor.onSelectionChange = (sticker) => {
+      if (sticker) {
+        deleteStickerBtn.disabled = false;
+        selectedLabel.textContent = `Terpilih: ${sticker.emoji}`;
+      } else {
+        deleteStickerBtn.disabled = true;
+        selectedLabel.textContent = 'Belum ada stiker dipilih';
+      }
+    };
+    editor.onSelectionChange(null); // reset tampilan tiap kali masuk layar editor
+    deleteStickerBtn.onclick = () => editor.removeSelectedSticker();
+
+    const captionInput = document.getElementById('caption-input');
+    captionInput.oninput = () => editor.setCaption(captionInput.value);
+
+    document.getElementById('btn-download').onclick = () => editor.download();
+
+    document.getElementById('btn-restart').onclick = () => {
+      state.photos = [];
+      pendingPhoto = null;
+      captionInput.value = '';
+      showScreen('home');
+    };
+  }
+
+  /* =========================================================
+     INIT
+  ========================================================= */
+  initHomeScreen();
+  showScreen('home');
+})();
+
+</script>
+</body>
+</html>
